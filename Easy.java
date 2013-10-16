@@ -16,6 +16,7 @@ public class Easy extends JFrame
  {
    this.user = user;
    new MinesMain(user, difficulty);
+   setVisible(false);
    
  }
 }

@@ -52,10 +52,12 @@ public class Board extends JPanel {
                         + ".png"))).getImage();
         }
 
-        setDoubleBuffered(true);
+
 
         addMouseListener(new MinesAdapter());
         newGame();
+        repaint();
+        
     }
 
 
@@ -63,7 +65,7 @@ public class Board extends JPanel {
 
         Random random;
         int current_col;
-
+        
         int i = 0;
         int position = 0;
         int cell = 0;
@@ -71,6 +73,7 @@ public class Board extends JPanel {
         random = new Random();
         inGame = true;
         mines_left = mines;
+        statusbar.setVisible(true);
 
         all_cells = rows * cols;
         field = new int[all_cells];
@@ -135,6 +138,7 @@ public class Board extends JPanel {
                 }
             }
         }
+        
     }
 
 
@@ -265,7 +269,8 @@ public class Board extends JPanel {
       
       return this.currentField;
       
-    }  
+    }
+   
     class MinesAdapter extends MouseAdapter {
         public void mousePressed(MouseEvent e) {
 
@@ -333,5 +338,10 @@ public class Board extends JPanel {
 
             }
         }
+    }
+     public void solveGame() {
+      
+      inGame = false;
+      statusbar.setVisible(false);
     }
 }

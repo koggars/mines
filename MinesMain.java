@@ -10,6 +10,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.swing.filechooser.*;
 
 public class MinesMain extends JFrame
 {
@@ -44,6 +45,7 @@ public class MinesMain extends JFrame
    private int[] saveArray;
  
    private File saveFile;
+   private File loadFile;
    
    private Path path;
    
@@ -51,6 +53,7 @@ public class MinesMain extends JFrame
    private String difficulty;
    
    private BufferedWriter saveOut;
+  
 
  
   public MinesMain(String userName, String difficulty)
@@ -59,7 +62,11 @@ public class MinesMain extends JFrame
     setTitle("Minesweeper v0.1");
     user = userName;
     this.difficulty = difficulty;
-    System.out.print(userName);
+     
+   final JFileChooser fc = new JFileChooser(user);
+   FileNameExtensionFilter filter = new FileNameExtensionFilter(
+        "Mines Files" , "mines");
+   fc.setFileFilter(filter);
     
 // Object Instantiation
 
@@ -86,7 +93,7 @@ public class MinesMain extends JFrame
     helpPopup = new JMenuItem("Help");
     aboutPopup = new JMenuItem("About Minesweeper");
 
-    prefDim = new Dimension(255,310);
+    prefDim = new Dimension(242,290);
     
     
 // Adding of components
@@ -115,14 +122,15 @@ public class MinesMain extends JFrame
  
     this.setPreferredSize(prefDim);
     
-     this.pack();
+   
      gameBoard = new Board(statusBar);
      add(gameBoard);
      setLocationRelativeTo(null);
-     setResizable(true);
+     setResizable(false);
+     this.repaint();
+     gameBoard.repaint();
+     this.pack();
      setVisible(true);
-     repaint();
-
      
      saveGame.addActionListener(new ActionListener(){
        
@@ -142,8 +150,8 @@ public class MinesMain extends JFrame
          BufferedWriter outputWriter = null;
          outputWriter = new BufferedWriter(new FileWriter(saveFile));
          saveArray = gameBoard.getField();
+         
          for(int i =0;i < saveArray.length; i++) {
-           
            outputWriter.write(saveArray[i]+" ");  
            
          }
@@ -156,12 +164,36 @@ public class MinesMain extends JFrame
        
      }
     });
+    loadGame.addActionListener(new ActionListener(){
+       public void actionPerformed(ActionEvent f){
+         
+         int returnVal = fc.showOpenDialog(gameBoard);
+         loadFile = fc.getSelectedFile();
+         
+       }
+     });
     
- }
+     newGame.addActionListener(new ActionListener(){
+       public void actionPerformed(ActionEvent f){
+         
+       gameBoard.newGame();
+       gameBoard.repaint();
+       }
+     });
+     
+     solveGame.addActionListener(new ActionListener(){
+       public void actionPerformed(ActionEvent f){
+         
+   gameBoard.solveGame();
+       }
+     });
+    
+  }
+  
+  
 public String getDifficulty()
 {
-    return difficulty;
-    
+    return difficulty;  
 }
  
 }
