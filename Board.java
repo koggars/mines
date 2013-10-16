@@ -36,6 +36,8 @@ public class Board extends JPanel {
     private int cols = 16;
     private int all_cells;
     private JLabel statusbar;
+    
+    private int [] currentField;
 
 
     public Board(JLabel statusbar) {
@@ -259,7 +261,11 @@ public class Board extends JPanel {
             statusbar.setText("Game lost");
     }
 
-
+    public int[] getField() {
+      
+      return this.currentField;
+      
+    }  
     class MinesAdapter extends MouseAdapter {
         public void mousePressed(MouseEvent e) {
 
@@ -297,6 +303,8 @@ public class Board extends JPanel {
                             field[(cRow * cols) + cCol] -= MARK_FOR_CELL;
                             mines_left++;
                             statusbar.setText(Integer.toString(mines_left));
+                            currentField = (int[])field.clone();
+                            
                         }
                     }
 
@@ -316,6 +324,7 @@ public class Board extends JPanel {
                             inGame = false;
                         if (field[(cRow * cols) + cCol] == EMPTY_CELL)
                             find_empty_cells((cRow * cols) + cCol);
+                        currentField = (int[])field.clone();
                     }
                 }
 

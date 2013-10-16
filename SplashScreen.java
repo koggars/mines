@@ -48,7 +48,6 @@ public SplashScreen()
     
      JComboBox previousUsers;
      previousUsers = new JComboBox(listOfFiles);
-     previousUsers.setSelectedIndex(0);
      
      
      placeHolder.add(newUser, BorderLayout.WEST);

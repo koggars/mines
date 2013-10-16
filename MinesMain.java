@@ -1,6 +1,15 @@
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class MinesMain extends JFrame
 {
@@ -31,13 +40,26 @@ public class MinesMain extends JFrame
    private Dimension prefDim;
    
    private Board gameBoard;
+   
+   private int[] saveArray;
  
-  public MinesMain()
+   private File saveFile;
+   
+   private String user;
+   private String difficulty;
+   
+   private BufferedWriter saveOut;
+   DateFormat dateFormat = new SimpleDateFormat(" ddMMyyyy hh:mm:ss");
+   Date date = new Date();
+ 
+  public MinesMain(String userName, String difficulty)
   {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle("Minesweeper v0.1");
-  
- 
+    user = userName;
+    this.difficulty = difficulty;
+    System.out.print(userName);
+    
 // Object Instantiation
 
 
@@ -99,7 +121,33 @@ public class MinesMain extends JFrame
      setResizable(true);
      setVisible(true);
      repaint();
+
+     
+     
+     saveGame.addActionListener(new ActionListener(){
+     public void actionPerformed(ActionEvent f){
+       String tempDifficulty = getDifficulty() ;
+       saveArray = gameBoard.getField();
+       Path path = Paths.get(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
+        try
+       {
+       Files.createDirectories(path.getParent());
+       Files.createFile(path);
+       }
+       catch(java.io.IOException e){
+         
+       }
+       
+      
+       }
+     
+     
+     });
     
- } 
+ }
+  public String getDifficulty()
+  {
+    return difficulty;
+  }
  
 }
