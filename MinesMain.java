@@ -45,12 +45,13 @@ public class MinesMain extends JFrame
  
    private File saveFile;
    
+   private Path path;
+   
    private String user;
    private String difficulty;
    
    private BufferedWriter saveOut;
-   DateFormat dateFormat = new SimpleDateFormat(" ddMMyyyy hh:mm:ss");
-   Date date = new Date();
+
  
   public MinesMain(String userName, String difficulty)
   {
@@ -126,13 +127,26 @@ public class MinesMain extends JFrame
      
      saveGame.addActionListener(new ActionListener(){
      public void actionPerformed(ActionEvent f){
+       DateFormat dateFormat = new SimpleDateFormat(" ddMMyyyy hh:mm:ss");
+       Date date = new Date();
        String tempDifficulty = getDifficulty() ;
        saveArray = gameBoard.getField();
-       Path path = Paths.get(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
+       path = Paths.get(" ");
+       path = Paths.get(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
         try
        {
        Files.createDirectories(path.getParent());
        Files.createFile(path);
+       saveFile = new File(" ");
+       saveFile = new File(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
+       BufferedWriter outputWriter = null;
+       outputWriter = new BufferedWriter(new FileWriter(saveFile));
+       saveArray = gameBoard.getField();
+       for(int i =0;i < saveArray.length; i++) {
+         outputWriter.write(saveArray[i]+"");  
+       }
+       outputWriter.flush();
+       outputWriter.close();
        }
        catch(java.io.IOException e){
          
