@@ -124,8 +124,8 @@ public class MinesMain extends JFrame
      repaint();
 
      
-     
      saveGame.addActionListener(new ActionListener(){
+       
      public void actionPerformed(ActionEvent f){
        DateFormat dateFormat = new SimpleDateFormat(" ddMMyyyy hh:mm:ss");
        Date date = new Date();
@@ -133,35 +133,35 @@ public class MinesMain extends JFrame
        saveArray = gameBoard.getField();
        path = Paths.get(" ");
        path = Paths.get(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
-        try
+       try
        {
-       Files.createDirectories(path.getParent());
-       Files.createFile(path);
-       saveFile = new File(" ");
-       saveFile = new File(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
-       BufferedWriter outputWriter = null;
-       outputWriter = new BufferedWriter(new FileWriter(saveFile));
-       saveArray = gameBoard.getField();
-       for(int i =0;i < saveArray.length; i++) {
-         outputWriter.write(saveArray[i]+"");  
-       }
-       outputWriter.flush();
-       outputWriter.close();
+         Files.createDirectories(path.getParent());
+         Files.createFile(path);
+         saveFile = new File(" ");
+         saveFile = new File(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
+         BufferedWriter outputWriter = null;
+         outputWriter = new BufferedWriter(new FileWriter(saveFile));
+         saveArray = gameBoard.getField();
+         for(int i =0;i < saveArray.length; i++) {
+           
+           outputWriter.write(saveArray[i]+" ");  
+           
+         }
+         outputWriter.flush();
+         outputWriter.close();
        }
        catch(java.io.IOException e){
          
        }
        
-      
-       }
-     
-     
-     });
+     }
+    });
     
  }
-  public String getDifficulty()
-  {
+public String getDifficulty()
+{
     return difficulty;
-  }
+    
+}
  
 }
