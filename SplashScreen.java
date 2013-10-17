@@ -74,12 +74,15 @@ public SplashScreen()
          File dir = new File("users/" + userName);
          if(dir.isDirectory())
           {
-           JOptionPane.showMessageDialog(null,"User exists please choose another user");
+           JOptionPane.showMessageDialog(null,"Username already exists please select another");
+           
           }
          else
+         {
           dir.mkdir();
           new GameSelect(dir.toString());
           setVisible(false);
+         }
           
         }
        }); 

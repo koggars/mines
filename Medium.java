@@ -11,9 +11,8 @@ public class Medium extends JFrame
 {
  private String user;
  private String difficulty = "m";
- 
  public Medium(String user)
- {
-   this.user = user;
- }
+{
+  this.user = user;
+}
 }

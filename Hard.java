@@ -11,7 +11,7 @@ public class Hard extends JFrame
 {
   private String user;
   private String difficulty = "h";
- public Hard(String user)
+  public Hard(String user)
  {
    this.user = user;
  }
