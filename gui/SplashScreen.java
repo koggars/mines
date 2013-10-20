@@ -6,7 +6,7 @@ import javax.imageio.ImageIO;
 import java.io.*;
 import java.awt.image.*;
 import java.awt.event.*;
-
+import src.GameGeneration;
 
 
 public class SplashScreen extends JFrame
@@ -25,6 +25,7 @@ public class SplashScreen extends JFrame
   
 public SplashScreen()
   {
+     GameGeneration gamesIndex = new GameGeneration(true);
      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
      setTitle("Welcome - Minesweeper v0.1");
      

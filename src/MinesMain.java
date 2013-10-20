@@ -1,17 +1,12 @@
 package src;
 
+import src.IO.*;
 import gui.Board;
 
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.swing.filechooser.*;
 
 
@@ -46,9 +41,12 @@ public class MinesMain extends JFrame
    private Dimension prefDim;
    
    private Board gameBoard;
+   private MineSaveFileIO mineSFIO = new MineSaveFileIO();
    
    private String user;
    private String difficulty;
+
+   private MineSaveFile currentFile;
    
    private BufferedWriter saveOut;
   
@@ -133,15 +131,13 @@ public class MinesMain extends JFrame
      saveGame.addActionListener(new ActionListener(){
        
      public void actionPerformed(ActionEvent f){
-       
+         mineSFIO.saveMineFile(currentFile);
      }
     });
     loadGame.addActionListener(new ActionListener(){
        public void actionPerformed(ActionEvent f){
-         
-         int returnVal = fc.showOpenDialog(gameBoard);
-         loadFile = fc.getSelectedFile();
-         
+         fc.showOpenDialog(gameBoard);
+         currentFile = mineSFIO.loadMineFile(fc.getSelectedFile());
        }
      });
     

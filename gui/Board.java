@@ -6,7 +6,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import java.util.Random;
-
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,6 +36,7 @@ public class Board extends JPanel {
     private int mines = 40;
     private int rows = 16;
     private int cols = 16;
+    private String randomSeed = "Default";
     private int all_cells;
     private JLabel statusbar;
     
@@ -61,28 +61,39 @@ public class Board extends JPanel {
         
     }
 
+    public Board(int diff, String seed) {
 
-    public void newGame() {
+        int[] minesArr = {40, 60, 80};
+        int[] sizeArr = {16, 20, 25};
 
+        mines = minesArr[diff];
+
+        rows = sizeArr[diff];
+
+        cols = sizeArr[diff] + sizeArr[diff]/3*diff;
+
+        randomSeed = seed;
+        generateBoard();
+
+        currentField = field;
+
+    }
+    public void generateBoard() {
         Random random;
         int current_col;
-        
+
         int i = 0;
         int position = 0;
         int cell = 0;
 
-        random = new Random();
-        inGame = true;
+        random = new Random(convertSeed());
         mines_left = mines;
-        statusbar.setVisible(true);
 
         all_cells = rows * cols;
         field = new int[all_cells];
-        
+
         for (i = 0; i < all_cells; i++)
             field[i] = COVER_FOR_CELL;
-
-        statusbar.setText(Integer.toString(mines_left));
 
 
         i = 0;
@@ -91,14 +102,14 @@ public class Board extends JPanel {
             position = (int) (all_cells * random.nextDouble());
 
             if ((position < all_cells) &&
-                (field[position] != COVERED_MINE_CELL)) {
+                    (field[position] != COVERED_MINE_CELL)) {
 
 
                 current_col = position % cols;
                 field[position] = COVERED_MINE_CELL;
                 i++;
 
-                if (current_col > 0) { 
+                if (current_col > 0) {
                     cell = position - 1 - cols;
                     if (cell >= 0)
                         if (field[cell] != COVERED_MINE_CELL)
@@ -139,7 +150,12 @@ public class Board extends JPanel {
                 }
             }
         }
-        
+    }
+    public void newGame() {
+        inGame = true;
+        statusbar.setVisible(true);
+        generateBoard();
+        statusbar.setText(Integer.toString(mines_left));
     }
 
 
@@ -344,5 +360,19 @@ public class Board extends JPanel {
       
       inGame = false;
       statusbar.setVisible(false);
+    }
+
+    private long convertSeed()
+    {
+        String longStr = "";
+        for(int i = 0; i< randomSeed.length(); i++)
+        {
+            longStr += ""+Character.getNumericValue(randomSeed.charAt(i));
+        }
+        if(longStr.length() > 12)
+        {
+            longStr = longStr.substring(0,12);
+        }
+        return Long.valueOf(longStr);
     }
 }
