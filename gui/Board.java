@@ -1,3 +1,5 @@
+package gui;
+
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -5,10 +7,11 @@ import java.awt.event.MouseEvent;
 
 import java.util.Random;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+
 
 public class Board extends JPanel {
 
@@ -47,9 +50,7 @@ public class Board extends JPanel {
         img = new Image[NUM_IMAGES];
 
         for (int i = 0; i < NUM_IMAGES; i++) {
-            img[i] =
-                    (new ImageIcon(this.getClass().getResource((i)
-                        + ".png"))).getImage();
+            img[i] = (new ImageIcon("images/tiles/"+(i)+".png")).getImage();
         }
 
 

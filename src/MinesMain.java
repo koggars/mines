@@ -1,4 +1,7 @@
-import java.util.*;
+package src;
+
+import gui.Board;
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -6,11 +9,13 @@ import java.io.*;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.filechooser.*;
+
+
+// Main Function for the Mines App
 
 public class MinesMain extends JFrame
 {
@@ -41,13 +46,6 @@ public class MinesMain extends JFrame
    private Dimension prefDim;
    
    private Board gameBoard;
-   
-   private int[] saveArray;
- 
-   private File saveFile;
-   private File loadFile;
-   
-   private Path path;
    
    private String user;
    private String difficulty;
@@ -135,32 +133,6 @@ public class MinesMain extends JFrame
      saveGame.addActionListener(new ActionListener(){
        
      public void actionPerformed(ActionEvent f){
-       DateFormat dateFormat = new SimpleDateFormat(" ddMMyyyy hh:mm:ss");
-       Date date = new Date();
-       String tempDifficulty = getDifficulty() ;
-       saveArray = gameBoard.getField();
-       path = Paths.get(" ");
-       path = Paths.get(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
-       try
-       {
-         Files.createDirectories(path.getParent());
-         Files.createFile(path);
-         saveFile = new File(" ");
-         saveFile = new File(user + "/" + dateFormat.format(date) + tempDifficulty + ".mines");
-         BufferedWriter outputWriter = null;
-         outputWriter = new BufferedWriter(new FileWriter(saveFile));
-         saveArray = gameBoard.getField();
-         
-         for(int i =0;i < saveArray.length; i++) {
-           outputWriter.write(saveArray[i]+" ");  
-           
-         }
-         outputWriter.flush();
-         outputWriter.close();
-       }
-       catch(java.io.IOException e){
-         
-       }
        
      }
     });

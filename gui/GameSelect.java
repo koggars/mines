@@ -1,9 +1,9 @@
-import java.util.*;
+package gui;
+
+import src.Difficulty;
+
 import javax.swing.*;
 import java.awt.*;
-import javax.imageio.ImageIO;
-import java.io.*;
-import java.awt.image.*;
 import java.awt.event.*;
 
 public class GameSelect extends JFrame {
@@ -50,30 +50,24 @@ public GameSelect(String user)
      easy.addActionListener(new ActionListener(){
      public void actionPerformed(ActionEvent e)
      {
-       
-        new Easy(GameSelect.this.user);
+        new Difficulty('e', GameSelect.this.user);
         setVisible(false);
-          
      }
      });
      medium.addActionListener(new ActionListener(){
      public void actionPerformed(ActionEvent e)
      {
 
-        new Medium(GameSelect.this.user);
-        setVisible(false);    
-       
-          
+        new Difficulty('m', GameSelect.this.user);
+        setVisible(false);
      }
      });
      hard.addActionListener(new ActionListener(){
      public void actionPerformed(ActionEvent e)
      {
 
-        new Hard(GameSelect.this.user);
-        setVisible(false);   
-       
-          
+        new Difficulty('h',GameSelect.this.user);
+        setVisible(false);
      }
      });
 //////////////////////////////////////////////////////////////////////////////////////////////
