@@ -6,13 +6,12 @@ import javax.imageio.ImageIO;
 import java.io.*;
 import java.awt.image.*;
 import java.awt.event.*;
-import src.GameGeneration;
 
 
 public class SplashScreen extends JFrame
 {
   private JPanel placeHolder;
-  private JButton newUser, generateBtn;
+  private JButton newUser;
   private JComboBox previousUsers;
   String userName;
   String path;
@@ -25,13 +24,11 @@ public class SplashScreen extends JFrame
   
 public SplashScreen()
   {
-     GameGeneration gamesIndex = new GameGeneration(true);
      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
      setTitle("Welcome - Minesweeper v0.1");
      
      placeHolder = new JPanel();
      newUser = new JButton("Create User");
-     generateBtn = new JButton("Generate Games");
    
      add(placeHolder,BorderLayout.CENTER);
      
@@ -61,7 +58,6 @@ public SplashScreen()
      
      placeHolder.add(newUser, BorderLayout.WEST);
      placeHolder.add(previousUsers, BorderLayout.SOUTH);
-     placeHolder.add(generateBtn, BorderLayout.SOUTH);
      this.pack();
      setResizable(false);
      setVisible(true);
@@ -98,13 +94,6 @@ public SplashScreen()
           
         }
        });
-
-     generateBtn.addActionListener(new ActionListener(){
-         public void actionPerformed(ActionEvent e)
-         {
-
-         }
-     });
 
      previousUsers.addActionListener(new ActionListener(){
        public void actionPerformed(ActionEvent f){

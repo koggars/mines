@@ -3,7 +3,7 @@ package src.IO;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import gui.Board;
+import gui.BoardFrame;
 
 
 // The MineSaveFile Template for Serialisation
@@ -14,7 +14,7 @@ public class MineSaveFile {
     private int fileID;
     private String user;
     private char difficulty;
-    private Board gameBoard;
+    private BoardFrame gameBoard;
     private DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy hh:mm:ss");
     private Date currentDate;
 

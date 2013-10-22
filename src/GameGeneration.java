@@ -9,18 +9,15 @@ public class GameGeneration {
 
    private MineGameFileIO mgfIO = new MineGameFileIO();
 
-   public GameGeneration(boolean generateDefault)
+   public GameGeneration()
    {
-       if(generateDefault)
-       {
-           for(int i = 0; i<3; i++)
-           {
-               char d = (i == 0) ? 'e' : (i == 1) ? 'm' : (i == 2) ? 'h' : 'e';
-               mgfIO.createGameFile("Default",i,i+1,d);
-           }
-       }
+
    }
 
+   public void generateDefault()
+   {
+	   generateGames("Default");
+   }
    public void generateGames(String seed)
    {
 
@@ -43,7 +40,7 @@ public class GameGeneration {
        for(int i = 0; i<3; i++)
        {
            char d = (i == 0) ? 'e' : (i == 1) ? 'm' : (i == 2) ? 'h' : 'e';
-           mgfIO.createGameFile(seed,i,i+1,d);
+           mgfIO.createGameFile(seed,d);
        }
    }
 }

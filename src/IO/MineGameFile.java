@@ -1,19 +1,17 @@
 package src.IO;
-import gui.Board;
+import src.Board;
 
 public class MineGameFile {
-    private int gameID;
+	private static int gameId = 0;
     private String seed;
-    private int fileID;
+	private long seedLong;
     private char difficulty;
-    private Board gameBoard;
+    private int[] gameBoard;
 
-    public MineGameFile(String seed, int gameID,int fileID, char difficulty)
+    public MineGameFile(String seed, char difficulty)
     {
-
+	    gameId++;
     	this.seed = seed;
-    	this.gameID = gameID;
-    	this.fileID = fileID;
     	this.difficulty = difficulty;
         int tmp = 0;
         if(difficulty == 'm')
@@ -21,8 +19,18 @@ public class MineGameFile {
         else if(difficulty == 'h')
             tmp = 2;
 
-    	gameBoard = new Board(tmp, seed);
+    	Board tmpBoard = new Board(tmp, seed);
+	    seedLong = tmpBoard.getRandomSeed();
+	    gameBoard = tmpBoard.getField();
     }
+
+	public MineGameFile(int gameId, String seed, long seedLong, char difficulty, int[] gameBoard)
+	{
+		this.gameId = gameId;
+		this.seed = seed;
+		this.difficulty = difficulty;
+		this.gameBoard = gameBoard;
+	}
 
     public String toString()
     {
@@ -30,23 +38,51 @@ public class MineGameFile {
 
         out += "<MineOptions>";
         out += "<seed>"+seed+"</seed>";
+	    out += "<seedLong>"+seedLong+"</seedLong>";
         out += "<difficulty>"+difficulty+"</difficulty>";
-        out += "<gID>"+gameID+"</gID>";
-        out += "<fID>"+fileID+"</fID>";
+	    out += "<gId>"+ gameId +"</gId>";
         out += "</MineOptions>";
-        out += "<MineData>"+getMineData()+"</MineData>";
+        out += "<MineData>"+mineDataString()+"</MineData>";
 
         return out;
     }
 
-    private String getMineData()
+    private String mineDataString()
     {
         String out = "";
-        for(int val : gameBoard.getField())
+        for(int val : gameBoard)
         {
             out += val+" ";
         }
 
         return out;
     }
+	public long getSeedLong()
+	{
+		return seedLong;
+	}
+	public String getSeed()
+	{
+		return seed;
+	}
+
+	public String getDifficulty()
+	{
+		switch (difficulty)
+		{
+			case 'e':
+				return "Easy";
+			case 'm':
+				return "Medium";
+			case 'h':
+				return "Hard";
+			default:
+				return "";
+		}
+	}
+
+	public int[] getMineData()
+	{
+		return gameBoard;
+	}
 }
