@@ -29,6 +29,7 @@ public class BoardFrame extends JPanel {
 	private final int DRAW_WRONG_MARK = 12;
 
 	private boolean inGame;
+	private int health = 100;
 	private Image[] img;
 	private JLabel statusbar;
 
@@ -48,26 +49,22 @@ public class BoardFrame extends JPanel {
 			img[i] = (new ImageIcon("images/tiles/" + (i) + ".png")).getImage();
 		}
 
-
-		int[] rowColMines = board.getRowsColsMines();
-		int rows = rowColMines[0];
-		int cols = rowColMines[0];
-
 		newGame();
 		addMouseListener(new MinesAdapter());
-		repaint();
 
 	}
 
 	public void newGame() {
+		currentField = board.getField();
 		inGame = true;
 		statusbar.setVisible(true);
 		statusbar.setText(Integer.toString(board.getMinesLeft()));
+		repaint();
 	}
 
 	public void paint(Graphics g) {
 
-		int cell = 0;
+		int cell;
 		int uncover = 0;
 
 		int[] rowColMines = board.getRowsColsMines();
@@ -122,10 +119,6 @@ public class BoardFrame extends JPanel {
 
 		return this.currentField;
 
-	}
-
-	public Board getBoard() {
-		return board;
 	}
 
 	public void solveGame() {
@@ -208,6 +201,10 @@ public class BoardFrame extends JPanel {
 				repaint();
 
 		}
+	}
+
+	public boolean isInGame() {
+		return inGame;
 	}
 
 	class MinesAdapter extends MouseAdapter {

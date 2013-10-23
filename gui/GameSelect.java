@@ -95,7 +95,13 @@ public class GameSelect extends JFrame {
 					}
 				}
 		);
-
+		loadGameBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				MineSaveFile msf = saveIO.loadGameFile(saveFileLocations[selectedSaveIndex]);
+				MineGameFile mgf = gameIO.loadGameFile("games/" + msf.getFilename() + ".game");
+				openMainWindow(mgf, msf);
+			}
+		});
 		generateBtn.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -143,9 +149,7 @@ public class GameSelect extends JFrame {
 						if (index == index2) {
 							selectedSaveIndex = index;
 
-							newGameBtn.setEnabled(index >= 0 && index < saveFileLocations.length);
-							viewStatsBtn.setEnabled(index >= 0 && index < saveFileLocations.length);
-
+							loadGameBtn.setEnabled(index >= 0 && index < saveFileLocations.length);
 						}
 					}
 				}
@@ -200,12 +204,14 @@ public class GameSelect extends JFrame {
 		add(centerPlaceholder, BorderLayout.CENTER);
 	}
 
-	private void setListData() {
+	public void setListData() {
 		String[][] gameListData = gameIO.getFileListData();
 		leftList.setListData(gameListData[0]);
 		gameFileLocations = gameListData[1];
 
 		String[][] saveListData = saveIO.getFileListData();
+		rightList.setListData(saveListData[0]);
+		saveFileLocations = saveListData[1];
 
 	}
 
@@ -213,9 +219,8 @@ public class GameSelect extends JFrame {
 		if (file != null && save == null) {
 			mainWindow = new MinesMain(this, username, file);
 			mainWindow.newGame();
-		} else if (save != null && file == null) {
-			mainWindow = new MinesMain(this, username, save);
-			mainWindow.loadGame();
+		} else if (save != null && file != null) {
+			mainWindow = new MinesMain(this, username, file, save);
 		}
 		setVisible(false);
 	}
@@ -225,4 +230,14 @@ public class GameSelect extends JFrame {
 		dispose();
 	}
 
+	public void restartGame() {
+		MineGameFile tmp = mainWindow.getGameFile();
+
+		mainWindow.dispose();
+
+		mainWindow = new MinesMain(this, username, tmp);
+
+		mainWindow.newGame();
+
+	}
 }

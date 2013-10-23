@@ -7,7 +7,6 @@ import src.Board;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import javax.swing.filechooser.*;
 
 
 // Main Function for the Mines App
@@ -56,22 +55,38 @@ public class MinesMain extends JFrame {
 		setTitle("Minesweeper In Game");
 	}
 
-	public MinesMain(GameSelect gameSelect, String userName, MineSaveFile gameSave) {
+	public MinesMain(GameSelect gameSelect, String userName, MineGameFile gameFile, MineSaveFile gameSave) {
 		this.gameSelect = gameSelect;
-
-
-//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		setTitle("Minesweeper In Game");
-//		title = new JLabel("Game: "+gameFile.getSeed()+" "+gameFile.getDifficulty()+" - "+userName);
-//
-//		mineSFIO = new MineSaveFileIO(userName);
-//
-//		currentGame = gameFile;
+		currentGame = gameFile;
 		user = userName;
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Minesweeper In Game");
+
+		user = userName;
+
+		loadGame(gameSave);
 	}
 
-	public void loadGame() {
+	public void loadGame(MineSaveFile gameSave) {
+		title = new JLabel("Game: " + currentGame.getSeed() + " " + currentGame.getDifficulty() + " - " + user);
 
+		mineSFIO = new MineSaveFileIO(user);
+
+		Board currentBoard = new Board(currentGame.getDifficulty(), currentGame.getSeedLong(), gameSave.getGameBoard());
+
+		statusBar = new JLabel("");
+
+		gameBoard = new BoardFrame(statusBar, currentBoard);
+		gameBoard.newGame();
+
+		int[] rc = currentBoard.getRowsColsMines();
+		int width = rc[1] * 15;
+		int height = rc[0] * 15;
+		gameBoard.setPreferredSize(new Dimension(width, height));
+
+		initComponents();
+		setEventHandlers();
 	}
 
 	public void newGame() {
@@ -81,11 +96,10 @@ public class MinesMain extends JFrame {
 
 		Board currentBoard = new Board(currentGame.getDifficulty(), currentGame.getSeedLong(), currentGame.getMineData());
 
-
 		statusBar = new JLabel("");
+
 		gameBoard = new BoardFrame(statusBar, currentBoard);
 		gameBoard.newGame();
-
 
 		int[] rc = currentBoard.getRowsColsMines();
 		int width = rc[1] * 15;
@@ -162,9 +176,20 @@ public class MinesMain extends JFrame {
 
 	public void setEventHandlers() {
 		saveGame.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent f) {
-				//mineSFIO.saveMineFile(currentFile);
+				if (gameBoard.isInGame()) {
+					MineSaveFile saveFile = new MineSaveFile(currentGame, user, gameBoard.getField());
+					if (mineSFIO.checkMineFile(saveFile) && confirmDialog("Save File Already exists do you wish to overwrite? \n All Saved Progress will be lost"))
+						mineSFIO.createMineFile(saveFile);
+					else
+						mineSFIO.createMineFile(saveFile);
+
+					gameSelect.setListData();
+					gameSelect.setVisible(true);
+					dispose();
+				} else {
+					JOptionPane.showMessageDialog(null, "Error: Unable to save game \n Cannot Save a game that you have lost!");
+				}
 			}
 		});
 
@@ -172,14 +197,13 @@ public class MinesMain extends JFrame {
 
 			public void actionPerformed(ActionEvent f) {
 				if (confirmDialog("Do You Wish to Restart Game?")) {
-					newGame();
+					gameSelect.restartGame();
 				}
 			}
 		});
 
 		solveGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent f) {
-
 				if (confirmDialog("Do you Wish to Solve?  \n All Progress will be lost!")) {
 					gameBoard.solveGame();
 				}
@@ -211,11 +235,12 @@ public class MinesMain extends JFrame {
 		});
 	}
 
+	public MineGameFile getGameFile() {
+		return currentGame;
+	}
+
 	public boolean confirmDialog(String message) {
 		int out = JOptionPane.showConfirmDialog(this, message, "Confirm", JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-
-		System.out.print(out);
 		return out == 0;
 	}
 }
