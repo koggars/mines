@@ -25,13 +25,14 @@ public class Board {
 
 		generateBoard();
 	}
+
 	public Board(int diff, String seed) {
 		init(diff, convertSeed(seed));
 
 		generateBoard();
 	}
-	private void init(int diff, long seed)
-	{
+
+	private void init(int diff, long seed) {
 		int[] sizeArr = {16, 20, 25};
 		int[] minesArr = {40, 80, 160};
 		this.randomSeed = seed;
@@ -39,18 +40,17 @@ public class Board {
 
 		rows = sizeArr[diff];
 
-		cols = sizeArr[diff] + sizeArr[diff]/3*diff;
+		cols = sizeArr[diff] + sizeArr[diff] / 3 * diff;
 
 		mines_left = mines;
 
 		all_cells = rows * cols;
 	}
-	public Board(String difficulty,long seed, int[] data)
-	{
+
+	public Board(String difficulty, long seed, int[] data) {
 		int diff;
 
-		switch (difficulty.charAt(0))
-		{
+		switch (difficulty.charAt(0)) {
 			case 'E':
 				diff = 0;
 				break;
@@ -67,7 +67,7 @@ public class Board {
 		init(diff, seed);
 		field = new int[data.length];
 
-		for(int i = 0; i<field.length; i++)
+		for (int i = 0; i < field.length; i++)
 			field[i] = data[i];
 	}
 
@@ -77,90 +77,82 @@ public class Board {
 
 		if (current_col > 0) {
 			cell = j - cols - 1;
-			if (cell >= 0)
-			{
+			if (cell >= 0) {
 				if (field[cell] > MINE_CELL) {
 					field[cell] -= COVER_FOR_CELL;
+					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
 						find_empty_cells(cell);
 				}
-				lastMoves.add(cell);
 			}
 
 			cell = j - 1;
-			if (cell >= 0)
-			{
+			if (cell >= 0) {
 				if (field[cell] > MINE_CELL) {
 					field[cell] -= COVER_FOR_CELL;
+					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
 						find_empty_cells(cell);
 				}
-				lastMoves.add(cell);
 			}
 
 			cell = j + cols - 1;
-			if (cell < all_cells)
-			{
+			if (cell < all_cells) {
 				if (field[cell] > MINE_CELL) {
 					field[cell] -= COVER_FOR_CELL;
+					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
 						find_empty_cells(cell);
 				}
-				lastMoves.add(cell);
 			}
 		}
 
 		cell = j - cols;
-		if (cell >= 0)
-		{
+		if (cell >= 0) {
 			if (field[cell] > MINE_CELL) {
 				field[cell] -= COVER_FOR_CELL;
+				lastMoves.add(cell);
 				if (field[cell] == EMPTY_CELL)
 					find_empty_cells(cell);
 			}
-			lastMoves.add(cell);
 		}
 		cell = j + cols;
-		if (cell < all_cells)
-		{
+		if (cell < all_cells) {
 			if (field[cell] > MINE_CELL) {
 				field[cell] -= COVER_FOR_CELL;
+				lastMoves.add(cell);
 				if (field[cell] == EMPTY_CELL)
 					find_empty_cells(cell);
 			}
-			lastMoves.add(cell);
 		}
 		if (current_col < (cols - 1)) {
 			cell = j - cols + 1;
-			if (cell >= 0)
-			{
+			if (cell >= 0) {
 				if (field[cell] > MINE_CELL) {
 					field[cell] -= COVER_FOR_CELL;
+					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
 						find_empty_cells(cell);
 				}
-				lastMoves.add(cell);
 			}
 
 			cell = j + cols + 1;
-			if (cell < all_cells)
-			{
+			if (cell < all_cells) {
 				if (field[cell] > MINE_CELL) {
 					field[cell] -= COVER_FOR_CELL;
+					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
 						find_empty_cells(cell);
 				}
-				lastMoves.add(cell);
 			}
 			cell = j + 1;
-			if (cell < all_cells)
-			{
+			if (cell < all_cells) {
 				if (field[cell] > MINE_CELL) {
 					field[cell] -= COVER_FOR_CELL;
+					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
 						find_empty_cells(cell);
 				}
-				lastMoves.add(cell);
 			}
 		}
 
@@ -237,47 +229,41 @@ public class Board {
 			}
 		}
 	}
-	public void setLastMoves(ArrayList<Integer> lm)
-	{
+
+	public void setLastMoves(ArrayList<Integer> lm) {
 		lastMoves = lm;
 	}
 
-	public int getMinesLeft()
-	{
+	public int getMinesLeft() {
 		return mines_left;
 	}
 
-	private long convertSeed(String randomSeed)
-	{
+	private long convertSeed(String randomSeed) {
 		String longStr = "";
-		for(int i = 0; i< randomSeed.length(); i++)
-		{
-			longStr += ""+Character.getNumericValue(randomSeed.charAt(i));
+		for (int i = 0; i < randomSeed.length(); i++) {
+			longStr += "" + Character.getNumericValue(randomSeed.charAt(i));
 		}
-		if(longStr.length() > 12)
-		{
-			longStr = longStr.substring(0,12);
+		if (longStr.length() > 12) {
+			longStr = longStr.substring(0, 12);
 		}
 		return Long.valueOf(longStr);
 	}
 
-	public long getRandomSeed()
-	{
+	public long getRandomSeed() {
 		return randomSeed;
 	}
+
 	public int[] getField() {
 		return this.field;
 	}
 
-	public int[] getRowsColsMines()
-	{
-		int[] out = {rows,cols,mines};
+	public int[] getRowsColsMines() {
+		int[] out = {rows, cols, mines};
 
 		return out;
 	}
 
-	public String toString()
-	{
+	public String toString() {
 		String out = "";
 
 		for (int i = 0; i < rows; i++) {
@@ -285,7 +271,7 @@ public class Board {
 			for (int j = 0; j < cols; j++) {
 				out += field[(i * cols) + j] + "|";
 			}
-			out+= "\n";
+			out += "\n";
 		}
 
 		return out;

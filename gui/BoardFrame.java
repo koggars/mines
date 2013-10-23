@@ -58,11 +58,11 @@ public class BoardFrame extends JPanel {
 
 	}
 
-	public void setMenus(JMenuItem undoMenu,JMenuItem redoMenu)
-	{
-		 this.undoMenu = undoMenu;
-		 this.redoMenu = redoMenu;
+	public void setMenus(JMenuItem undoMenu, JMenuItem redoMenu) {
+		this.undoMenu = undoMenu;
+		this.redoMenu = redoMenu;
 	}
+
 	public void newGame() {
 		undoStack = new Stack<ArrayList<Integer>>();
 		redoStack = new Stack<ArrayList<Integer>>();
@@ -197,6 +197,7 @@ public class BoardFrame extends JPanel {
 				if ((field[(cRow * cols) + cCol] > MINE_CELL) &&
 						(field[(cRow * cols) + cCol] < MARKED_MINE_CELL)) {
 					currentMove = new ArrayList<Integer>();
+					currentMove.add((cRow * cols) + cCol);
 					field[(cRow * cols) + cCol] -= COVER_FOR_CELL;
 					rep = true;
 
@@ -208,8 +209,8 @@ public class BoardFrame extends JPanel {
 						field = board.getField();
 					}
 					currentField = (int[]) field.clone();
-					if(currentMove.size() > 0);
-						undoStack.push(currentMove);
+					if (currentMove.size() > 0) ;
+					undoStack.push(currentMove);
 				}
 			}
 
@@ -227,20 +228,17 @@ public class BoardFrame extends JPanel {
 		public void mousePressed(MouseEvent e) {
 			mouseClick(e);
 
-			undoMenu.setEnabled(undoStack.size()>0);
-			redoMenu.setEnabled(redoStack.size()>0);
+			undoMenu.setEnabled(undoStack.size() > 0);
+			redoMenu.setEnabled(redoStack.size() > 0);
 		}
 	}
 
-	public String dumpStacks()
-	{
+	public String dumpStacks() {
 		String out = "";
-		while (undoStack.size() > 0)
-		{
+		while (undoStack.size() > 0) {
 			ArrayList<Integer> moves = undoStack.pop();
-			out = "Move "+ undoStack.size()+" ->  S "+moves.size()+" --> ";
-			for(int tmp : moves)
-			{
+			out = "Move " + undoStack.size() + " ->  S " + moves.size() + " --> ";
+			for (int tmp : moves) {
 				out += tmp + " | ";
 			}
 
@@ -248,33 +246,28 @@ public class BoardFrame extends JPanel {
 		return out;
 	}
 
-	public void undoMove()
-	{
-		if(inGame && undoStack.size() > 0)
-		{
+	public void undoMove() {
+		if (inGame && undoStack.size() > 0) {
 			int[] field = board.getField();
 			ArrayList<Integer> moves = undoStack.pop();
 			redoStack.push(moves);
-			for(int tmp : moves)
-			{
+			for (int tmp : moves) {
 				field[tmp] += COVER_FOR_CELL;
 			}
 
 			currentField = field.clone();
 			repaint();
 		}
-		undoMenu.setEnabled(undoStack.size()>0);
-		redoMenu.setEnabled(redoStack.size()>0);
+		undoMenu.setEnabled(undoStack.size() > 0);
+		redoMenu.setEnabled(redoStack.size() > 0);
 	}
-	public void redoMove()
-	{
-		if(inGame && redoStack.size() > 0)
-		{
+
+	public void redoMove() {
+		if (inGame && redoStack.size() > 0) {
 			int[] field = board.getField();
 			ArrayList<Integer> moves = redoStack.pop();
 			undoStack.push(moves);
-			for(int tmp : moves)
-			{
+			for (int tmp : moves) {
 				field[tmp] -= COVER_FOR_CELL;
 			}
 
@@ -282,7 +275,7 @@ public class BoardFrame extends JPanel {
 			repaint();
 		}
 
-		undoMenu.setEnabled(undoStack.size()>0);
-		redoMenu.setEnabled(redoStack.size()>0);
+		undoMenu.setEnabled(undoStack.size() > 0);
+		redoMenu.setEnabled(redoStack.size() > 0);
 	}
 }
