@@ -12,14 +12,16 @@ import javax.swing.filechooser.*;
 
 // Main Function for the Mines App
 
-public class MinesMain extends JFrame
-{
-	private JLabel statusBar;
+public class MinesMain extends JFrame {
+	private GameSelect gameSelect;
 
+	private JLabel statusBar;
+	private JLabel title;
 	private JPanel placeHolder;
 
 	private JMenuBar menuPlace;
 
+	private JMenu menu;
 	private JMenu file;
 	private JMenu edit;
 	private JMenu actions;
@@ -28,6 +30,7 @@ public class MinesMain extends JFrame
 	private JMenuItem mainMenu;
 	private JMenuItem gameMenu;
 	private JMenuItem saveGame;
+	private JMenuItem restartGame;
 	private JMenuItem quitGame;
 	private JMenuItem undoLast;
 	private JMenuItem redoLast;
@@ -37,8 +40,6 @@ public class MinesMain extends JFrame
 
 	private JMenuItem aboutPopup;
 
-	private Dimension prefDim;
-
 	private BoardFrame gameBoard;
 	private MineSaveFileIO mineSFIO;
 
@@ -46,152 +47,172 @@ public class MinesMain extends JFrame
 
 	private MineGameFile currentGame;
 
-	public MinesMain(String userName, MineGameFile gameFile)
-	{
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("Minesweeper "+gameFile.getSeed()+" "+gameFile.getDifficulty()+" - "+userName);
-		mineSFIO = new MineSaveFileIO(userName);
-
+	public MinesMain(GameSelect gameSelect, String userName, MineGameFile gameFile) {
+		this.gameSelect = gameSelect;
 		currentGame = gameFile;
+		user = userName;
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Minesweeper In Game");
+	}
+
+	public MinesMain(GameSelect gameSelect, String userName, MineSaveFile gameSave) {
+		this.gameSelect = gameSelect;
+
+
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setTitle("Minesweeper In Game");
+//		title = new JLabel("Game: "+gameFile.getSeed()+" "+gameFile.getDifficulty()+" - "+userName);
+//
+//		mineSFIO = new MineSaveFileIO(userName);
+//
+//		currentGame = gameFile;
 		user = userName;
 	}
 
-	public void newGame()
-	{
+	public void loadGame() {
+
+	}
+
+	public void newGame() {
+		title = new JLabel("Game: " + currentGame.getSeed() + " " + currentGame.getDifficulty() + " - " + user);
+
+		mineSFIO = new MineSaveFileIO(user);
+
 		Board currentBoard = new Board(currentGame.getDifficulty(), currentGame.getSeedLong(), currentGame.getMineData());
 
-		initComponents(currentBoard);
+
+		statusBar = new JLabel("");
+		gameBoard = new BoardFrame(statusBar, currentBoard);
+		gameBoard.newGame();
+
+
+		int[] rc = currentBoard.getRowsColsMines();
+		int width = rc[1] * 15;
+		int height = rc[0] * 15;
+		gameBoard.setPreferredSize(new Dimension(width, height));
+
+		initComponents();
 		setEventHandlers();
 	}
 
-	public void initComponents(Board currentBoard)
-	{
+	public void initComponents() {
 
-	  final JFileChooser fc = new JFileChooser(user);
-	  FileNameExtensionFilter filter = new FileNameExtensionFilter(
-			  "Mines Files" , "mines");
-	  fc.setFileFilter(filter);
+		menuPlace = new JMenuBar();
 
-	// Object Instantiation
+		placeHolder = new JPanel();
 
+		menu = new JMenu("Menu");
+		file = new JMenu("File");
+		edit = new JMenu("Edit");
+		actions = new JMenu("Actions");
+		help = new JMenu("Help");
 
-	  statusBar = new JLabel("");
-
-
-	  menuPlace = new JMenuBar();
-
-	  placeHolder = new JPanel();
-
-	  file = new JMenu("File");
-	  edit = new JMenu("Edit");
-	  actions = new JMenu("Actions");
-	  help = new JMenu("Help");
-
-	  mainMenu = new JMenuItem("Main Menu");
-	  gameMenu = new JMenuItem("Game Menu");
-	  saveGame = new JMenuItem("Save Game");
-	  quitGame = new JMenuItem("Quit");
-	  undoLast = new JMenuItem("Undo");
-	  redoLast = new JMenuItem("Redo");
-	  solveGame = new JMenuItem("Solve Current Game");
-	  highScores = new JMenuItem("Scores & Stats");
-	  helpPopup = new JMenuItem("Help");
-	  aboutPopup = new JMenuItem("About Minesweeper");
+		mainMenu = new JMenuItem("Main Menu");
+		gameMenu = new JMenuItem("Game Menu");
+		saveGame = new JMenuItem("Save Game");
+		restartGame = new JMenuItem("Restart Game");
+		quitGame = new JMenuItem("Quit");
+		undoLast = new JMenuItem("Undo");
+		redoLast = new JMenuItem("Redo");
+		solveGame = new JMenuItem("Solve Current Game");
+		highScores = new JMenuItem("Scores & Stats");
+		helpPopup = new JMenuItem("Help");
+		aboutPopup = new JMenuItem("About Minesweeper");
 
 
-	// Adding of components
-	  add(statusBar, BorderLayout.SOUTH);
-	  add(menuPlace, BorderLayout.NORTH);
-	  add(placeHolder, BorderLayout.CENTER);
+		// Adding of components
+		add(statusBar, BorderLayout.SOUTH);
+		add(menuPlace, BorderLayout.NORTH);
+		add(placeHolder, BorderLayout.CENTER);
 
-	  menuPlace.add(file);
-	  file.add(mainMenu);
-	  file.add(gameMenu);
-	  file.add(saveGame);
-	  file.add(quitGame);
 
-	  menuPlace.add(edit);
-	  edit.add(undoLast);
-	  edit.add(redoLast);
+		menuPlace.add(menu);
+		menu.add(mainMenu);
+		menu.add(gameMenu);
+		menu.add(quitGame);
 
-	  menuPlace.add(actions);
-	  actions.add(solveGame);
-	  actions.add(highScores);
+		menuPlace.add(file);
+		file.add(restartGame);
+		file.add(saveGame);
 
-	  menuPlace.add(help);
-	  help.add(helpPopup);
-	  help.add(aboutPopup);
+		menuPlace.add(edit);
+		edit.add(undoLast);
+		edit.add(redoLast);
 
-	  gameBoard = new BoardFrame(statusBar, currentBoard);
-		int[] rc = currentBoard.getRowsColsMines();
-		int width = rc[1]*15 + 5;
-		int height = rc[0]*15 + 64;
-      prefDim = new Dimension(width,height);
+		menuPlace.add(actions);
+		actions.add(solveGame);
+		actions.add(highScores);
 
-	  this.setPreferredSize(prefDim);
-	  add(gameBoard);
-	  setLocationRelativeTo(null);
-	  setResizable(true);
+		menuPlace.add(help);
+		help.add(helpPopup);
+		help.add(aboutPopup);
 
-	  this.repaint();
-	  this.pack();
-	  setVisible(true);
+		placeHolder.setLayout(new BorderLayout());
+		placeHolder.add(title, BorderLayout.NORTH);
+		placeHolder.add(gameBoard, BorderLayout.CENTER);
+		placeHolder.repaint();
+		setLocationRelativeTo(null);
+		setResizable(false);
+
+		this.repaint();
+		this.pack();
+		setVisible(true);
 	}
 
-	public void setEventHandlers()
-	{
-		saveGame.addActionListener(new ActionListener(){
+	public void setEventHandlers() {
+		saveGame.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent f){
+			public void actionPerformed(ActionEvent f) {
 				//mineSFIO.saveMineFile(currentFile);
 			}
 		});
 
-		solveGame.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent f){
+		restartGame.addActionListener(new ActionListener() {
 
-				if(confirmDialog("Do you Wish to Solve?"))
-				{
+			public void actionPerformed(ActionEvent f) {
+				if (confirmDialog("Do You Wish to Restart Game?")) {
+					newGame();
+				}
+			}
+		});
+
+		solveGame.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent f) {
+
+				if (confirmDialog("Do you Wish to Solve?  \n All Progress will be lost!")) {
 					gameBoard.solveGame();
 				}
 			}
 		});
-		addComponentListener(new ComponentListener() {
-			@Override
-			public void componentResized(ComponentEvent componentEvent) {
-				Dimension size = getSize();
-				int[] rc = gameBoard.getBoard().getRowsColsMines();
 
-				int width = rc[1]*15 + 2;
-				int height = rc[0]*15 + 50;
-				String out = "";
-				out += "Cols: "+ rc[1] + "- Rows: "+ rc[0] +"\n";
-				out += "G| W: "+ width + "- H: "+ height +"\n";
-				out += "A| W: "+ size.getWidth() + "- H: "+ size.getHeight() +"\n";
-				System.out.println(out);
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent componentEvent) {
-				//To change body of implemented methods use File | Settings | File Templates.
-			}
-
-			@Override
-			public void componentShown(ComponentEvent componentEvent) {
-				//To change body of implemented methods use File | Settings | File Templates.
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent componentEvent) {
-				//To change body of implemented methods use File | Settings | File Templates.
+		mainMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent f) {
+				if (confirmDialog("Do You wish to go back to the Main Menu? \n All Progress will be lost!")) {
+					gameSelect.showSplash();
+					dispose();
+				}
 			}
 		});
-
+		gameMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent f) {
+				if (confirmDialog("Do You wish to go back to the Game Select Menu? \n All Progress will be lost!")) {
+					gameSelect.setVisible(true);
+					dispose();
+				}
+			}
+		});
+		quitGame.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent f) {
+				if (confirmDialog("So You wish to quit? \n All Progress will be lost!")) {
+					System.exit(0);
+				}
+			}
+		});
 	}
 
-	public boolean confirmDialog(String message)
-	{
-		int out = JOptionPane.showConfirmDialog(this,message,"Confirm",JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
+	public boolean confirmDialog(String message) {
+		int out = JOptionPane.showConfirmDialog(this, message, "Confirm", JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
 
 
 		System.out.print(out);
