@@ -226,10 +226,11 @@ public class BoardFrame extends JPanel {
 
 	class MinesAdapter extends MouseAdapter {
 		public void mousePressed(MouseEvent e) {
-			mouseClick(e);
+			if (inGame)
+				mouseClick(e);
 
-			undoMenu.setEnabled(undoStack.size() > 0);
-			redoMenu.setEnabled(redoStack.size() > 0);
+			undoMenu.setEnabled(undoStack.size() > 0 && inGame);
+			redoMenu.setEnabled(redoStack.size() > 0 && inGame);
 		}
 	}
 
