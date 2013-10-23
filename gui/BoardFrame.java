@@ -1,14 +1,14 @@
 package gui;
 
+import java.util.Stack;
+import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import src.Board;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 
 public class BoardFrame extends JPanel {
@@ -27,11 +27,15 @@ public class BoardFrame extends JPanel {
 	private final int DRAW_COVER = 10;
 	private final int DRAW_MARK = 11;
 	private final int DRAW_WRONG_MARK = 12;
-
+	private JMenuItem undoMenu;
+	private JMenuItem redoMenu;
 	private boolean inGame;
 	private int health = 100;
 	private Image[] img;
 	private JLabel statusbar;
+
+	private Stack<ArrayList<Integer>> undoStack;
+	private Stack<ArrayList<Integer>> redoStack;
 
 	private Board board;
 
@@ -54,7 +58,15 @@ public class BoardFrame extends JPanel {
 
 	}
 
+	public void setMenus(JMenuItem undoMenu,JMenuItem redoMenu)
+	{
+		 this.undoMenu = undoMenu;
+		 this.redoMenu = redoMenu;
+	}
 	public void newGame() {
+		undoStack = new Stack<ArrayList<Integer>>();
+		redoStack = new Stack<ArrayList<Integer>>();
+
 		currentField = board.getField();
 		inGame = true;
 		statusbar.setVisible(true);
@@ -128,6 +140,7 @@ public class BoardFrame extends JPanel {
 	}
 
 	public void mouseClick(MouseEvent e) {
+		ArrayList<Integer> currentMove;
 		int[] rowColMines = board.getRowsColsMines();
 		int rows = rowColMines[0];
 		int cols = rowColMines[1];
@@ -183,17 +196,20 @@ public class BoardFrame extends JPanel {
 
 				if ((field[(cRow * cols) + cCol] > MINE_CELL) &&
 						(field[(cRow * cols) + cCol] < MARKED_MINE_CELL)) {
-
+					currentMove = new ArrayList<Integer>();
 					field[(cRow * cols) + cCol] -= COVER_FOR_CELL;
 					rep = true;
 
 					if (field[(cRow * cols) + cCol] == MINE_CELL)
 						inGame = false;
 					if (field[(cRow * cols) + cCol] == EMPTY_CELL) {
+						board.setLastMoves(currentMove);
 						board.find_empty_cells((cRow * cols) + cCol);
 						field = board.getField();
 					}
 					currentField = (int[]) field.clone();
+					if(currentMove.size() > 0);
+						undoStack.push(currentMove);
 				}
 			}
 
@@ -210,6 +226,63 @@ public class BoardFrame extends JPanel {
 	class MinesAdapter extends MouseAdapter {
 		public void mousePressed(MouseEvent e) {
 			mouseClick(e);
+
+			undoMenu.setEnabled(undoStack.size()>0);
+			redoMenu.setEnabled(redoStack.size()>0);
 		}
+	}
+
+	public String dumpStacks()
+	{
+		String out = "";
+		while (undoStack.size() > 0)
+		{
+			ArrayList<Integer> moves = undoStack.pop();
+			out = "Move "+ undoStack.size()+" ->  S "+moves.size()+" --> ";
+			for(int tmp : moves)
+			{
+				out += tmp + " | ";
+			}
+
+		}
+		return out;
+	}
+
+	public void undoMove()
+	{
+		if(inGame && undoStack.size() > 0)
+		{
+			int[] field = board.getField();
+			ArrayList<Integer> moves = undoStack.pop();
+			redoStack.push(moves);
+			for(int tmp : moves)
+			{
+				field[tmp] += COVER_FOR_CELL;
+			}
+
+			currentField = field.clone();
+			repaint();
+		}
+		undoMenu.setEnabled(undoStack.size()>0);
+		redoMenu.setEnabled(redoStack.size()>0);
+	}
+	public void redoMove()
+	{
+		if(inGame && redoStack.size() > 0)
+		{
+			int[] field = board.getField();
+			ArrayList<Integer> moves = redoStack.pop();
+			undoStack.push(moves);
+			for(int tmp : moves)
+			{
+				field[tmp] -= COVER_FOR_CELL;
+			}
+
+			currentField = field.clone();
+			repaint();
+		}
+
+		undoMenu.setEnabled(undoStack.size()>0);
+		redoMenu.setEnabled(redoStack.size()>0);
 	}
 }

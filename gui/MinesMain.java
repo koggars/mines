@@ -154,6 +154,11 @@ public class MinesMain extends JFrame {
 		edit.add(undoLast);
 		edit.add(redoLast);
 
+		gameBoard.setMenus(undoLast, redoLast);
+
+		redoLast.setEnabled(false);
+		undoLast.setEnabled(false);
+
 		menuPlace.add(actions);
 		actions.add(solveGame);
 		actions.add(highScores);
@@ -201,7 +206,18 @@ public class MinesMain extends JFrame {
 				}
 			}
 		});
-
+		undoLast.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				gameBoard.undoMove();
+			}
+		});
+		redoLast.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				gameBoard.redoMove();
+			}
+		});
 		solveGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent f) {
 				if (confirmDialog("Do you Wish to Solve?  \n All Progress will be lost!")) {
