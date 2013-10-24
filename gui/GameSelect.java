@@ -66,7 +66,6 @@ public class GameSelect extends JFrame {
 
 		loadGameBtn.setEnabled(false);
 		newGameBtn.setEnabled(false);
-		viewStatsBtn.setEnabled(false);
 
 
 		initComponents();
@@ -102,6 +101,13 @@ public class GameSelect extends JFrame {
 				openMainWindow(mgf, msf);
 			}
 		});
+
+		viewStatsBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				new StatsFrame();
+			}
+		});
 		generateBtn.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -131,7 +137,6 @@ public class GameSelect extends JFrame {
 							selectedGameIndex = index;
 
 							newGameBtn.setEnabled(index >= 0 && index < gameFileLocations.length);
-							viewStatsBtn.setEnabled(index >= 0 && index < gameFileLocations.length);
 
 						}
 					}

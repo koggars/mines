@@ -32,7 +32,9 @@ public class BoardFrame extends JPanel {
 	private boolean inGame;
 	private int health = 100;
 	private Image[] img;
-	private JLabel statusbar;
+	private StatusPane statusbar;
+
+	private boolean gameStarted = false;
 
 	private Stack<ArrayList<Integer>> undoStack;
 	private Stack<ArrayList<Integer>> redoStack;
@@ -42,11 +44,11 @@ public class BoardFrame extends JPanel {
 	private int[] currentField;
 
 
-	public BoardFrame(JLabel statusbar, Board board) {
+	public BoardFrame(StatusPane statusbar, Board board) {
 
 		this.statusbar = statusbar;
 		this.board = board;
-
+		statusbar.setStatus(0);
 		img = new Image[NUM_IMAGES];
 
 		for (int i = 0; i < NUM_IMAGES; i++) {
@@ -70,7 +72,7 @@ public class BoardFrame extends JPanel {
 		currentField = board.getField();
 		inGame = true;
 		statusbar.setVisible(true);
-		statusbar.setText(Integer.toString(board.getMinesLeft()));
+		statusbar.setMines(board.getMinesLeft());
 		repaint();
 	}
 
@@ -122,9 +124,12 @@ public class BoardFrame extends JPanel {
 
 		if (uncover == 0 && inGame) {
 			inGame = false;
-			statusbar.setText("Game won");
-		} else if (!inGame)
-			statusbar.setText("Game lost");
+			statusbar.setStatus(2);
+			statusbar.stopClock();
+		} else if (!inGame) {
+			statusbar.setStatus(3);
+			statusbar.stopClock();
+		}
 	}
 
 	public int[] getField() {
@@ -134,9 +139,10 @@ public class BoardFrame extends JPanel {
 	}
 
 	public void solveGame() {
-
 		inGame = false;
 		statusbar.setVisible(false);
+		statusbar.setStatus(5);
+		statusbar.stopClock();
 	}
 
 	public void mouseClick(MouseEvent e) {
@@ -175,14 +181,14 @@ public class BoardFrame extends JPanel {
 						if (mines_left > 0) {
 							field[(cRow * cols) + cCol] += MARK_FOR_CELL;
 							mines_left--;
-							statusbar.setText(Integer.toString(mines_left));
+							statusbar.setMines(mines_left);
 						} else
-							statusbar.setText("No marks left");
+							statusbar.setStatus(4);
 					} else {
 
 						field[(cRow * cols) + cCol] -= MARK_FOR_CELL;
 						mines_left++;
-						statusbar.setText(Integer.toString(mines_left));
+						statusbar.setMines(mines_left);
 						currentField = field.clone();
 
 					}
@@ -226,6 +232,11 @@ public class BoardFrame extends JPanel {
 
 	class MinesAdapter extends MouseAdapter {
 		public void mousePressed(MouseEvent e) {
+
+			if (!gameStarted) {
+				statusbar.setStatus(1);
+				statusbar.startClock();
+			}
 			if (inGame)
 				mouseClick(e);
 
