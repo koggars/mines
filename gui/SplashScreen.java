@@ -146,6 +146,9 @@ public class SplashScreen extends JFrame {
 	private String[] getUser() {
 		path = "users/";
 		folder = new File(path);
+		if (!folder.isDirectory())
+			folder.mkdir();
+
 		File[] listOfFiles = folder.listFiles();
 		String[] listOfFileNames = new String[listOfFiles.length];
 

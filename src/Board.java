@@ -6,10 +6,10 @@ import java.util.ArrayList;
 
 public class Board {
 
-	private final int COVER_FOR_CELL = 10;
-	private final int EMPTY_CELL = 0;
-	private final int MINE_CELL = 9;
-	private final int COVERED_MINE_CELL = MINE_CELL + COVER_FOR_CELL;
+	private final int COVER_FOR_CELL = 0xF;
+	private final int EMPTY_CELL = 0x0;
+	private final int[] MINE_CELLS = {0x9, 0xA, 0xB, 0xC};
+	private final int BEFORE_MINES = COVER_FOR_CELL + MINE_CELLS[0];
 
 	private int mines_left;
 	private int[] field;
@@ -34,7 +34,7 @@ public class Board {
 
 	private void init(int diff, long seed) {
 		int[] sizeArr = {16, 20, 25};
-		int[] minesArr = {40, 80, 160};
+		int[] minesArr = {25, 45, 90};
 		this.randomSeed = seed;
 		mines = minesArr[diff];
 
@@ -78,7 +78,7 @@ public class Board {
 		if (current_col > 0) {
 			cell = j - cols - 1;
 			if (cell >= 0) {
-				if (field[cell] > MINE_CELL) {
+				if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 					field[cell] -= COVER_FOR_CELL;
 					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
@@ -88,7 +88,7 @@ public class Board {
 
 			cell = j - 1;
 			if (cell >= 0) {
-				if (field[cell] > MINE_CELL) {
+				if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 					field[cell] -= COVER_FOR_CELL;
 					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
@@ -98,7 +98,7 @@ public class Board {
 
 			cell = j + cols - 1;
 			if (cell < all_cells) {
-				if (field[cell] > MINE_CELL) {
+				if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 					field[cell] -= COVER_FOR_CELL;
 					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
@@ -109,7 +109,7 @@ public class Board {
 
 		cell = j - cols;
 		if (cell >= 0) {
-			if (field[cell] > MINE_CELL) {
+			if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 				field[cell] -= COVER_FOR_CELL;
 				lastMoves.add(cell);
 				if (field[cell] == EMPTY_CELL)
@@ -118,7 +118,7 @@ public class Board {
 		}
 		cell = j + cols;
 		if (cell < all_cells) {
-			if (field[cell] > MINE_CELL) {
+			if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 				field[cell] -= COVER_FOR_CELL;
 				lastMoves.add(cell);
 				if (field[cell] == EMPTY_CELL)
@@ -128,7 +128,7 @@ public class Board {
 		if (current_col < (cols - 1)) {
 			cell = j - cols + 1;
 			if (cell >= 0) {
-				if (field[cell] > MINE_CELL) {
+				if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 					field[cell] -= COVER_FOR_CELL;
 					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
@@ -138,7 +138,7 @@ public class Board {
 
 			cell = j + cols + 1;
 			if (cell < all_cells) {
-				if (field[cell] > MINE_CELL) {
+				if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 					field[cell] -= COVER_FOR_CELL;
 					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
@@ -147,7 +147,7 @@ public class Board {
 			}
 			cell = j + 1;
 			if (cell < all_cells) {
-				if (field[cell] > MINE_CELL) {
+				if (field[cell] >= COVER_FOR_CELL && field[cell] < BEFORE_MINES) {
 					field[cell] -= COVER_FOR_CELL;
 					lastMoves.add(cell);
 					if (field[cell] == EMPTY_CELL)
@@ -156,6 +156,10 @@ public class Board {
 			}
 		}
 
+	}
+
+	public void hitMine() {
+		mines--;
 	}
 
 	private void generateBoard() {
@@ -176,58 +180,76 @@ public class Board {
 
 		i = 0;
 		while (i < mines) {
+			int rIndex = (int) (Math.random() * MINE_CELLS.length);
+			int mineType = MINE_CELLS[rIndex];
+			int coveredMine = mineType + COVER_FOR_CELL;
+
 
 			position = (int) (all_cells * random.nextDouble());
 
 			if ((position < all_cells) &&
-					(field[position] != COVERED_MINE_CELL)) {
+					(!isCoveredMine(field[position]))) {
 
 
 				current_col = position % cols;
-				field[position] = COVERED_MINE_CELL;
+				field[position] = coveredMine;
 				i++;
 
 				if (current_col > 0) {
 					cell = position - 1 - cols;
 					if (cell >= 0)
-						if (field[cell] != COVERED_MINE_CELL)
+						if (!isCoveredMine(field[cell]))
 							field[cell] += 1;
 					cell = position - 1;
 					if (cell >= 0)
-						if (field[cell] != COVERED_MINE_CELL)
+						if (!isCoveredMine(field[cell]))
 							field[cell] += 1;
 
 					cell = position + cols - 1;
 					if (cell < all_cells)
-						if (field[cell] != COVERED_MINE_CELL)
+						if (!isCoveredMine(field[cell]))
 							field[cell] += 1;
 				}
 
 				cell = position - cols;
 				if (cell >= 0)
-					if (field[cell] != COVERED_MINE_CELL)
+					if (!isCoveredMine(field[cell]))
 						field[cell] += 1;
 				cell = position + cols;
 				if (cell < all_cells)
-					if (field[cell] != COVERED_MINE_CELL)
+					if (!isCoveredMine(field[cell]))
 						field[cell] += 1;
 
 				if (current_col < (cols - 1)) {
 					cell = position - cols + 1;
 					if (cell >= 0)
-						if (field[cell] != COVERED_MINE_CELL)
+						if (!isCoveredMine(field[cell]))
 							field[cell] += 1;
 					cell = position + cols + 1;
 					if (cell < all_cells)
-						if (field[cell] != COVERED_MINE_CELL)
+						if (!isCoveredMine(field[cell]))
 							field[cell] += 1;
 					cell = position + 1;
 					if (cell < all_cells)
-						if (field[cell] != COVERED_MINE_CELL)
+						if (!isCoveredMine(field[cell]))
 							field[cell] += 1;
 				}
 			}
 		}
+	}
+
+	public boolean isCoveredMine(int value) {
+
+		return isMine(value - COVER_FOR_CELL);
+	}
+
+	public boolean isMine(int value) {
+		for (int mine : MINE_CELLS) {
+			if (value == mine)
+				return true;
+		}
+
+		return false;
 	}
 
 	public void setLastMoves(ArrayList<Integer> lm) {
@@ -236,6 +258,10 @@ public class Board {
 
 	public int getMinesLeft() {
 		return mines_left;
+	}
+
+	public int getMines() {
+		return mines;
 	}
 
 	private long convertSeed(String randomSeed) {

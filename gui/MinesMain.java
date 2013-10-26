@@ -90,7 +90,7 @@ public class MinesMain extends JFrame {
 		int height = rc[0] * 15;
 		statsPane = new StatusPane(width);
 
-		gameBoard = new BoardFrame(statsPane, currentBoard);
+		gameBoard = new BoardFrame(statsPane, currentBoard, this);
 		gameBoard.newGame();
 		gameBoard.setPreferredSize(new Dimension(width, height));
 
@@ -247,5 +247,11 @@ public class MinesMain extends JFrame {
 	public boolean confirmDialog(String message) {
 		int out = JOptionPane.showConfirmDialog(this, message, "Confirm", JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
 		return out == 0;
+	}
+
+	public void gameOver(boolean win) {
+		String message = (win) ? "You Won!" : "You Lost!";
+		//NEED TO DO, Trigger Saving to a stats file.
+		JOptionPane.showMessageDialog(this, message);
 	}
 }

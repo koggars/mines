@@ -13,20 +13,21 @@ import javax.swing.*;
 
 public class BoardFrame extends JPanel {
 
-	private final int NUM_IMAGES = 13;
+	private final int NUM_IMAGES = 16;
 	private final int CELL_SIZE = 15;
 
-	private final int COVER_FOR_CELL = 10;
-	private final int MARK_FOR_CELL = 10;
+	private final int COVER_FOR_CELL = 0xF;
+	private final int MARK_FOR_CELL = 0xD;
 	private final int EMPTY_CELL = 0;
-	private final int MINE_CELL = 9;
-	private final int COVERED_MINE_CELL = MINE_CELL + COVER_FOR_CELL;
-	private final int MARKED_MINE_CELL = COVERED_MINE_CELL + MARK_FOR_CELL;
+	private final int[] MINE_CELLS = {0x9, 0xA, 0xB, 0xC};
+	private final int[] MINE_LIVES = {10, 25, 50, 100};
 
-	private final int DRAW_MINE = 9;
-	private final int DRAW_COVER = 10;
-	private final int DRAW_MARK = 11;
-	private final int DRAW_WRONG_MARK = 12;
+	private final int LAST_MINE = MINE_CELLS[MINE_CELLS.length - 1];
+
+	private final int DRAW_COVER = COVER_FOR_CELL;
+	private final int DRAW_MARK = 0xD;
+	private final int DRAW_WRONG_MARK = 0xE;
+	private int mines_left;
 	private JMenuItem undoMenu;
 	private JMenuItem redoMenu;
 	private boolean inGame;
@@ -42,9 +43,9 @@ public class BoardFrame extends JPanel {
 	private Board board;
 
 	private int[] currentField;
+	private MinesMain mainFrame;
 
-
-	public BoardFrame(StatusPane statusbar, Board board) {
+	public BoardFrame(StatusPane statusbar, Board board, MinesMain mainFrame) {
 
 		this.statusbar = statusbar;
 		this.board = board;
@@ -52,11 +53,12 @@ public class BoardFrame extends JPanel {
 		img = new Image[NUM_IMAGES];
 
 		for (int i = 0; i < NUM_IMAGES; i++) {
-			img[i] = (new ImageIcon("images/tiles/" + (i) + ".png")).getImage();
+			img[i] = (new ImageIcon("images/tiles/" + Integer.toHexString(i).toUpperCase() + ".png")).getImage();
 		}
-
 		newGame();
 		addMouseListener(new MinesAdapter());
+
+		this.mainFrame = mainFrame;
 
 	}
 
@@ -66,10 +68,12 @@ public class BoardFrame extends JPanel {
 	}
 
 	public void newGame() {
+		health = 100;
 		undoStack = new Stack<ArrayList<Integer>>();
 		redoStack = new Stack<ArrayList<Integer>>();
 
 		currentField = board.getField();
+		mines_left = board.getMines();
 		inGame = true;
 		statusbar.setVisible(true);
 		statusbar.setMines(board.getMinesLeft());
@@ -85,39 +89,43 @@ public class BoardFrame extends JPanel {
 		int rows = rowColMines[0];
 		int cols = rowColMines[1];
 
-		int[] field = board.getField();
+		int[] field = board.getField().clone();
+
+		if (inGame)
+			checkLife();
 
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 
 				cell = field[(i * cols) + j];
 
-				if (inGame && cell == MINE_CELL)
-					inGame = false;
-
 				if (!inGame) {
-					if (cell == COVERED_MINE_CELL) {
-						cell = DRAW_MINE;
-					} else if (cell == MARKED_MINE_CELL) {
-						cell = DRAW_MARK;
-					} else if (cell > COVERED_MINE_CELL) {
-						cell = DRAW_WRONG_MARK;
-					} else if (cell > MINE_CELL) {
-						cell = DRAW_COVER;
-					}
+					if (cell < 0) {
+						cell *= -1;
+						cell -= COVER_FOR_CELL;
 
+						if (board.isMine(cell))
+							cell = DRAW_MARK;
+						else
+							cell = DRAW_WRONG_MARK;
+					} else if (board.isMine(cell - COVER_FOR_CELL))
+						cell -= COVER_FOR_CELL;
+					else if (cell >= COVER_FOR_CELL)
+						cell = DRAW_COVER;
 
 				} else {
-					if (cell > COVERED_MINE_CELL)
+					if (cell < 0)
 						cell = DRAW_MARK;
-					else if (cell > MINE_CELL) {
+					else if (cell > (LAST_MINE + COVER_FOR_CELL))
+						cell -= COVER_FOR_CELL;
+					else if (cell > (LAST_MINE)) {
 						cell = DRAW_COVER;
 						uncover++;
 					}
 				}
-
 				g.drawImage(img[cell], (j * CELL_SIZE),
 						(i * CELL_SIZE), this);
+
 			}
 		}
 
@@ -126,10 +134,20 @@ public class BoardFrame extends JPanel {
 			inGame = false;
 			statusbar.setStatus(2);
 			statusbar.stopClock();
+			mainFrame.gameOver(true);
 		} else if (!inGame) {
 			statusbar.setStatus(3);
 			statusbar.stopClock();
+			mainFrame.gameOver(false);
 		}
+	}
+
+	public boolean ifPropertyMarked(int value) {
+		for (int mine : MINE_CELLS) {
+			if (value - MARK_FOR_CELL - COVER_FOR_CELL == mine)
+				return true;
+		}
+		return false;
 	}
 
 	public int[] getField() {
@@ -150,8 +168,7 @@ public class BoardFrame extends JPanel {
 		int[] rowColMines = board.getRowsColsMines();
 		int rows = rowColMines[0];
 		int cols = rowColMines[1];
-		int mines = rowColMines[2];
-		int mines_left = board.getMinesLeft();
+		;
 		int[] field = board.getField();
 
 
@@ -174,20 +191,19 @@ public class BoardFrame extends JPanel {
 
 			if (e.getButton() == MouseEvent.BUTTON3) {
 
-				if (field[(cRow * cols) + cCol] > MINE_CELL) {
+				if (field[(cRow * cols) + cCol] < 0 || field[(cRow * cols) + cCol] > LAST_MINE) {
 					rep = true;
 
-					if (field[(cRow * cols) + cCol] <= COVERED_MINE_CELL) {
+					if (field[(cRow * cols) + cCol] <= (LAST_MINE + COVER_FOR_CELL) && field[(cRow * cols) + cCol] > 0) {
 						if (mines_left > 0) {
-							field[(cRow * cols) + cCol] += MARK_FOR_CELL;
+							field[(cRow * cols) + cCol] *= -1;
 							mines_left--;
 							statusbar.setMines(mines_left);
 						} else
 							statusbar.setStatus(4);
-					} else {
-
-						field[(cRow * cols) + cCol] -= MARK_FOR_CELL;
+					} else if (field[(cRow * cols) + cCol] < 0) {
 						mines_left++;
+						field[(cRow * cols) + cCol] *= -1;
 						statusbar.setMines(mines_left);
 						currentField = field.clone();
 
@@ -196,25 +212,24 @@ public class BoardFrame extends JPanel {
 
 			} else {
 
-				if (field[(cRow * cols) + cCol] > COVERED_MINE_CELL) {
+				if (field[(cRow * cols) + cCol] < 0) {
 					return;
 				}
 
-				if ((field[(cRow * cols) + cCol] > MINE_CELL) &&
-						(field[(cRow * cols) + cCol] < MARKED_MINE_CELL)) {
-					currentMove = new ArrayList<Integer>();
-					currentMove.add((cRow * cols) + cCol);
+				if ((field[(cRow * cols) + cCol] > LAST_MINE) &&
+						(field[(cRow * cols) + cCol] <= LAST_MINE + COVER_FOR_CELL)) {
 					field[(cRow * cols) + cCol] -= COVER_FOR_CELL;
 					rep = true;
-
-					if (field[(cRow * cols) + cCol] == MINE_CELL)
-						inGame = false;
-					if (field[(cRow * cols) + cCol] == EMPTY_CELL) {
+					currentMove = new ArrayList<Integer>();
+					if (board.isMine(field[(cRow * cols) + cCol])) {
+						hitMine(field[(cRow * cols) + cCol]);
+					} else {
+						currentMove.add((cRow * cols) + cCol);
 						board.setLastMoves(currentMove);
 						board.find_empty_cells((cRow * cols) + cCol);
 						field = board.getField();
 					}
-					currentField = (int[]) field.clone();
+					currentField = field.clone();
 					if (currentMove.size() > 0) ;
 					undoStack.push(currentMove);
 				}
@@ -230,15 +245,43 @@ public class BoardFrame extends JPanel {
 		return inGame;
 	}
 
+	public void checkLife() {
+		inGame = health > 0;
+		if (health < 0)
+			health = 0;
+
+		statusbar.setLife(health);
+
+		if (!inGame)
+			statusbar.stopClock();
+	}
+
+	public void hitMine(int value) {
+		if (board.isMine(value)) {
+			if (mines_left > 0)
+				mines_left--;
+
+			statusbar.setMines(mines_left);
+			int index = value - MINE_CELLS[0];
+
+			health -= MINE_LIVES[index];
+
+			checkLife();
+		}
+	}
+
 	class MinesAdapter extends MouseAdapter {
 		public void mousePressed(MouseEvent e) {
 
-			if (!gameStarted) {
+			if (!gameStarted && inGame) {
 				statusbar.setStatus(1);
 				statusbar.startClock();
 			}
-			if (inGame)
+
+			if (inGame) {
+				checkLife();
 				mouseClick(e);
+			}
 
 			undoMenu.setEnabled(undoStack.size() > 0 && inGame);
 			redoMenu.setEnabled(redoStack.size() > 0 && inGame);
@@ -290,4 +333,5 @@ public class BoardFrame extends JPanel {
 		undoMenu.setEnabled(undoStack.size() > 0);
 		redoMenu.setEnabled(redoStack.size() > 0);
 	}
+
 }
