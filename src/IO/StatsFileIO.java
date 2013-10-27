@@ -6,6 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Collections;
+import java.util.Comparator;
+
 
 public class StatsFileIO {
 	File[] statsFiles = {new File("stats/easy.stats"), new File("stats/medium.stats"), new File("stats/hard.stats")};
@@ -47,9 +50,7 @@ public class StatsFileIO {
 		}
 	}
 
-	private ArrayList<StatsFile> loadFile(char diff)
-	{
-		File file = getFile(diff);
+	private ArrayList<StatsFile> loadFile(File file) {
 		ArrayList<StatsFile> output = new ArrayList<StatsFile>();
 
 		if (file.exists()) {
@@ -57,8 +58,8 @@ public class StatsFileIO {
 
 				Scanner scanner = new Scanner(file);
 
-				while(scanner.hasNextLine()) {
-					output.add(deSeialize(scanner.nextLine()))
+				while (scanner.hasNextLine()) {
+					output.add(deSeialize(scanner.nextLine()));
 				}
 				scanner.close();
 			} catch (FileNotFoundException e) {
@@ -68,11 +69,10 @@ public class StatsFileIO {
 		return output;
 	}
 
-	public StatsFile deSeialize(String input)
-	{
-		MineSaveFile out = null;
+	public StatsFile deSeialize(String input) {
+		StatsFile out = null;
 		if (input.indexOf("<stat>") == 0) {
-			String[] tags = {"user", "datestamp", "gamestatus", "elapsedtime"};
+			String[] tags = {"user", "datestamp", "life", "gamestatus", "elapsedtime"};
 			String[] data = new String[tags.length];
 			for (int i = 0; i < tags.length; i++) {
 				String start = "<" + tags[i] + ">";
@@ -82,37 +82,49 @@ public class StatsFileIO {
 				int endI = input.indexOf(end);
 
 
-				data[i] = input.substring(startI, endI);
+				if (startI < 0 || endI < 0) {
+					System.out.print(tags[i]);
+					return null;
+				} else
+					data[i] = input.substring(startI, endI);
 
 			}
-			String user = data[0];
 
-			char difficulty = data[2].charAt(0);
-			int gameId = Integer.parseInt(data[3]);
-			String gameFileName = data[4];
-			String date = data[5];
-
-			Scanner tmpScanner = new Scanner(data[6]);
-			ArrayList<String> tmpArrayList = new ArrayList<String>();
-			while (tmpScanner.hasNext()) {
-				tmpArrayList.add(tmpScanner.next());
-			}
-
-			int[] mineData = new int[tmpArrayList.size()];
-
-			for (int i = 0; i < mineData.length; i++) {
-				mineData[i] = Integer.parseInt(tmpArrayList.get(i));
-			}
-			out = new MineSaveFile(gameId, user, difficulty, seed, mineData, gameFileName, date);
-
+			out = new StatsFile(data[0], data[1], Integer.parseInt(data[2]), data[3], data[4]);
 		}
-
 		return out;
 	}
-	}
 
-	private StatsData[] getStatsData()
-	{
+	public ArrayList<StatsData> getStatsData(char diff) {
+		ArrayList<StatsFile> stats = loadFile(getFile(diff));
+		ArrayList<StatsData> output = new ArrayList<StatsData>();
+		for (StatsFile aStat : stats) {
+			if (aStat != null) {
+				StatsData sd = new StatsData(aStat);
 
+				int index = output.indexOf(sd);
+
+				if (index >= 0) {
+					StatsData newSd = output.get(index);
+
+					newSd.addRatio(aStat.hasWon());
+
+					output.add(index, newSd);
+
+				} else {
+					output.add(sd);
+				}
+			}
+		}
+
+		Collections.sort(output, new Comparator<StatsData>() {
+			public int compare(StatsData o1, StatsData o2) {
+				Double d1 = o1.getWinLossRatio();
+				Double d2 = o2.getWinLossRatio();
+				return d2.compareTo(d1);
+			}
+		});
+
+		return output;
 	}
 }
