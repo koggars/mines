@@ -101,15 +101,12 @@ public class StatsFileIO {
 		for (StatsFile aStat : stats) {
 			if (aStat != null) {
 				StatsData sd = new StatsData(aStat);
-
 				int index = output.indexOf(sd);
-
-				if (index >= 0) {
+				System.out.println(index);
+				if (index != -1) {
 					StatsData newSd = output.get(index);
 
 					newSd.addRatio(aStat.hasWon());
-
-					output.add(index, newSd);
 
 				} else {
 					output.add(sd);
