@@ -100,6 +100,10 @@ public class MineGameFile {
 		}
 	}
 
+	public char getCharDiff() {
+		return difficulty;
+	}
+
 	public int[] getMineData() {
 		return gameBoard;
 	}

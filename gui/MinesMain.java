@@ -46,6 +46,9 @@ public class MinesMain extends JFrame {
 	private String user;
 
 	private MineGameFile currentGame;
+	private boolean saveStats = false;
+
+	private StatsFileIO statsIO = new StatsFileIO();
 
 	public MinesMain(GameSelect gameSelect, String userName, MineGameFile gameFile) {
 		this.gameSelect = gameSelect;
@@ -124,7 +127,6 @@ public class MinesMain extends JFrame {
 
 		// Adding of components
 		add(statsPane, BorderLayout.SOUTH);
-		//add(statusBar, BorderLayout.SOUTH);
 		add(menuPlace, BorderLayout.NORTH);
 		add(placeHolder, BorderLayout.CENTER);
 
@@ -250,8 +252,22 @@ public class MinesMain extends JFrame {
 	}
 
 	public void gameOver(boolean win) {
-		String message = (win) ? "You Won!" : "You Lost!";
-		//NEED TO DO, Trigger Saving to a stats file.
-		JOptionPane.showMessageDialog(this, message);
+		if (!saveStats) {
+			String header = (win) ? "Congratz!" : "Bad Luck!";
+			String message = (win) ? "You Won!" : "You Lost!";
+
+			message += "\n Would you like to go back to the Game Menu?";
+
+			StatsFile stats = new StatsFile(user, win, statsPane.getCurrentLife(), statsPane.getElapsedTimeStr());
+
+			statsIO.writeStats(currentGame.getCharDiff(), stats);
+			int question = JOptionPane.showConfirmDialog(this, message, header, JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+			if (question == 0) {
+				gameSelect.setVisible(true);
+				dispose();
+			}
+			saveStats = true;
+		}
 	}
 }

@@ -12,8 +12,13 @@ public class StatusPane extends JPanel {
 	private JLabel life;
 	private JLabel elapsedTime;
 	private JLabel status;
+
+	private String elapsedTimeStr = "";
+	private int currentLife;
 	private ClockListener clock = new ClockListener();
 	private Timer timer = new Timer(53, clock);
+	private boolean timerOn = false;
+	private Date elapsedDateTime;
 	private long startTime;
 	private SimpleDateFormat dateformat = new SimpleDateFormat("mm:ss.SSS");
 
@@ -27,7 +32,8 @@ public class StatusPane extends JPanel {
 		life = new JLabel("Life: 100%");
 		status = new JLabel("Status: Ready");
 		elapsedTime = new JLabel("Elapsed Time: 0");
-
+		elapsedTimeStr = "0";
+		currentLife = 100;
 
 		Dimension first = new Dimension(width * 2 / 3 - 5, 20);
 		Dimension second = new Dimension(width / 3 - 5, 20);
@@ -59,28 +65,36 @@ public class StatusPane extends JPanel {
 
 	public void startClock() {
 		timer.start();
+		timerOn = true;
 	}
 
 	public void stopClock() {
 		updateClock();
 		timer.stop();
+		timerOn = false;
 	}
 
 	private void updateClock() {
-		Date elapsed = new Date(System.currentTimeMillis() - startTime);
-		setElapsedTime(dateformat.format(elapsed));
+		elapsedDateTime = new Date(System.currentTimeMillis() - startTime);
+		setElapsedTime(dateformat.format(elapsedDateTime));
 	}
 
 
 	private class ClockListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			updateClock();
+			if (timerOn)
+				updateClock();
 		}
+	}
+
+	public String getElapsedDateTime() {
+		return dateformat.format(elapsedDateTime);
 	}
 
 	public void setElapsedTime(String time) {
 		elapsedTime.setText("Elapsed Time: " + time);
+		elapsedTimeStr = time;
 	}
 
 	public void setMines(int m) {
@@ -88,6 +102,7 @@ public class StatusPane extends JPanel {
 	}
 
 	public void setLife(int l) {
+		currentLife = l;
 		life.setText("Life: " + l + "%");
 	}
 
@@ -116,5 +131,13 @@ public class StatusPane extends JPanel {
 		}
 
 		status.setText("Status: " + statStr);
+	}
+
+	public String getElapsedTimeStr() {
+		return elapsedTimeStr;
+	}
+
+	public int getCurrentLife() {
+		return currentLife;
 	}
 }
