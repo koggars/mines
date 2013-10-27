@@ -13,6 +13,11 @@ public class StatsFile {
 	private String elapsedTime;
 
 
+	public StatsFile(String user, String datestamp, String gamestatus, String elapsedTime) {
+		this.user = user;
+
+	}
+
 	public StatsFile(String user, boolean wonGame, int life, String elapsedTime) {
 		dateStamp = new Date();
 		this.user = user;

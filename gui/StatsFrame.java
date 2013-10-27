@@ -1,18 +1,20 @@
 package gui;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.Dimension;
-import java.awt.GridLayout;
 
 
 public class StatsFrame extends JFrame {
 	private JTabbedPane tabbedPane = new JTabbedPane();
-
+	private JButton closeBtn = new JButton("Close");
 
 	public StatsFrame() {
 		initComponents();
 
+		this.setPreferredSize(new Dimension(600, 300));
 		this.setResizable(false);
 		this.repaint();
 		this.pack();
@@ -23,23 +25,20 @@ public class StatsFrame extends JFrame {
 	private void initComponents() {
 		String[] title = {"Easy", "Medium", "Hard"};
 		for (int i = 0; i < 3; i++) {
-			JPanel tabbedPannel = makeTextPanel("Tabbed Plane " + title[i] + " " + i);
+			StatsContent tabbedPannel = new StatsContent(title[i]);
 
 			tabbedPane.addTab(title[i], tabbedPannel);
 		}
 
-		add(tabbedPane);
-	}
+		closeBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				dispose();
+			}
+		});
 
-	private JPanel makeTextPanel(String text) {
-		JPanel panel = new JPanel(false);
-		JLabel filler = new JLabel(text);
-		filler.setHorizontalAlignment(JLabel.CENTER);
-		panel.setLayout(new GridLayout(1, 1));
-		panel.add(filler);
-
-		panel.setPreferredSize(new Dimension(400, 400));
-		return panel;
+		add(tabbedPane, BorderLayout.CENTER);
+		add(closeBtn, BorderLayout.SOUTH);
 	}
 
 }
