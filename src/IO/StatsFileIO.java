@@ -102,7 +102,6 @@ public class StatsFileIO {
 			if (aStat != null) {
 				StatsData sd = new StatsData(aStat);
 				int index = output.indexOf(sd);
-				System.out.println(index);
 				if (index != -1) {
 					StatsData newSd = output.get(index);
 
